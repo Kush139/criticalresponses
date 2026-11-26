@@ -1,0 +1,304 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Critical Response Research</title>
+
+    <meta name="description"
+          content="Help develop a better way to improve critical thinking and written communication.">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            background: #f7f7f5;
+            color: #242424;
+            font-family: -apple-system, BlinkMacSystemFont,
+                         "Segoe UI", sans-serif;
+            line-height: 1.7;
+        }
+
+        main {
+            max-width: 600px;
+            margin: 60px auto;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e2e2de;
+            border-radius: 16px;
+            padding: 36px;
+        }
+
+        .eyebrow {
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: #777;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 34px;
+            letter-spacing: -1.4px;
+            line-height: 1.2;
+            margin: 18px 0;
+        }
+
+        p {
+            color: #555;
+            font-size: 15px;
+        }
+
+        .details {
+            background: #f5f5f2;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 26px 0;
+        }
+
+        .detail {
+            padding: 8px 0;
+            font-size: 14px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .detail:last-child {
+            border-bottom: none;
+        }
+
+        button {
+            width: 100%;
+            border: none;
+            background: #242424;
+            color: white;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 18px;
+            transition: background 0.2s ease;
+        }
+
+        button:hover {
+            background: #444;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: wait;
+        }
+
+        .rubric {
+            display: block;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 600;
+            color: #242424;
+            margin-top: 24px;
+            padding: 15px 20px;
+            border: 1.5px solid #242424;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .rubric:hover {
+            background: #f0f0ed;
+        }
+
+        .rubric-subtitle {
+            display: block;
+            font-size: 13px;
+            font-weight: 400;
+            margin-top: 4px;
+            color: #666;
+        }
+
+        .platform {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+
+        footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+
+        #error {
+            color: #b91c1c;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        #error:empty {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            main {
+                margin: 16px auto;
+            }
+
+            .card {
+                padding: 24px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .rubric {
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<main>
+    <div class="card">
+
+        <div class="eyebrow">
+            Communication Research
+        </div>
+
+        <h1>
+            How do you think, reason, and communicate?
+        </h1>
+
+        <p>
+            We're developing an application designed to
+            help people strengthen their critical thinking
+            and written communication skills through
+            daily thought-provoking exercises.
+        </p>
+
+        <p>
+            Your responses will help us develop and
+            evaluate an AI system that provides meaningful
+            feedback on the quality of written arguments.
+        </p>
+
+        <div class="details">
+            <div class="detail">
+                Five randomly assigned prompts
+            </div>
+
+            <div class="detail">
+                150–300 words suggested per response
+            </div>
+
+            <div class="detail">
+                All questions are optional
+            </div>
+
+            <div class="detail">
+                No names or email addresses collected
+            </div>
+
+            <div class="detail">
+                No account required
+            </div>
+        </div>
+
+        <p>
+            There are no right or wrong opinions.
+            We're interested in how you communicate
+            and support your ideas.
+        </p>
+
+        <button id="start" onclick="startSurvey()">
+            Begin Survey →
+        </button>
+
+        <p class="platform">
+            The survey is hosted on Google Forms.
+        </p>
+
+        <a class="rubric"
+           href="rubric.pdf"
+           target="_blank"
+           rel="noopener noreferrer">
+
+            View Evaluation Rubric ↗
+
+            <span class="rubric-subtitle">
+                Optional — See how your responses will be evaluated
+            </span>
+
+        </a>
+
+        <p id="error" role="alert"></p>
+
+    </div>
+
+    <footer>
+        Voluntary participation · Anonymous responses
+    </footer>
+</main>
+
+<script>
+    async function startSurvey() {
+        const button = document.getElementById("start");
+        const error = document.getElementById("error");
+
+        button.disabled = true;
+        button.textContent = "Opening survey...";
+        error.textContent = "";
+
+        try {
+            const response = await fetch("./forms.json", {
+                cache: "no-store"
+            });
+
+            if (!response.ok) {
+                throw new Error("Unable to load surveys.");
+            }
+
+            const forms = await response.json();
+
+            if (!Array.isArray(forms) || forms.length === 0) {
+                throw new Error("No surveys available.");
+            }
+
+            const index = Math.floor(
+                Math.random() * forms.length
+            );
+
+            const url = new URL(forms[index]);
+
+            if (url.protocol !== "https:" ||
+                url.hostname !== "docs.google.com" ||
+                !url.pathname.startsWith("/forms/") ||
+                !url.pathname.endsWith("/viewform")) {
+                throw new Error("Invalid survey URL.");
+            }
+
+            window.location.assign(url.href);
+
+        } catch (err) {
+            error.textContent =
+                "Unable to open the survey. Please try again.";
+
+            button.disabled = false;
+            button.textContent = "Begin Survey →";
+        }
+    }
+</script>
+
+</body>
+</html>
